@@ -1,4 +1,5 @@
 import escapeStringRegexp from 'escape-string-regexp';
+import cases from './tosdr-cases.js';
 
 /**
  * @typedef Tag
@@ -36,7 +37,8 @@ export class TagsService {
    */
   filter(query, limit = null) {
     /** @type {string[]} */
-    const savedTags = this._storage.getObject(TAGS_LIST_KEY) || [];
+    // const savedTags = this._storage.getObject(TAGS_LIST_KEY) || [];
+    const savedTags = cases;
     let resultCount = 0;
     // Match any tag where the query is a prefix of the tag or a word within the tag.
     return savedTags.filter(tag => {
@@ -49,7 +51,7 @@ export class TagsService {
       // algorithm implemented by the browser (when available).
       // https://unicode.org/reports/tr29/#Word_Boundaries
       const words = tag.split(/\W+/);
-      const regex = new RegExp(`^${escapeStringRegexp(query)}`, 'i'); // Only match the start of the string
+      const regex = new RegExp(`${escapeStringRegexp(query)}`, 'i'); // Match anywhere in string
       const matches = words.some(word => word.match(regex)) || tag.match(regex);
       if (matches) {
         ++resultCount;

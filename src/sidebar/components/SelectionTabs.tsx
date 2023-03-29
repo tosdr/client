@@ -135,7 +135,7 @@ function SelectionTabs({
         >
           Annotations
         </Tab>
-        <Tab
+        {/* <Tab
           count={noteCount}
           isWaitingToAnchor={isWaitingToAnchorAnnotations}
           isSelected={selectedTab === 'note'}
@@ -143,7 +143,7 @@ function SelectionTabs({
           onSelect={() => selectTab('note')}
         >
           Page Notes
-        </Tab>
+        </Tab> */}
         {orphanCount > 0 && (
           <Tab
             count={orphanCount}

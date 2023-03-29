@@ -1,6 +1,6 @@
 import { fetchJSON } from '../util/fetch';
 import { replaceURLParams } from '../util/url';
-
+import { username } from '../helpers/account-id';
 /**
  * @typedef {import('../../types/api').Annotation} Annotation
  * @typedef {import('../../types/api').Group} Group
@@ -163,11 +163,54 @@ function createAPICall(
       // nb. Don't "simplify" the lines below to `return fetchJSON(...)` as this
       // would cause `onRequestFinished` to be called before the API response
       // is received.
+      debugger;
       const result = await fetchJSON(apiURL.toString(), {
         body: data ? JSON.stringify(stripInternalProperties(data)) : null,
         headers,
         method: descriptor.method,
       });
+      
+      const requestTosdr = result && descriptor.desc === 'Create an annotation' || descriptor.desc === 'Update an annotation';
+      if (requestTosdr) {
+        try {
+          const currentUsername = username(result.user);
+          const dataTosdr = {
+            service_id: '1',
+            annotation_id: result.id,
+            case_title: result.tags[0],
+            h_api_key: 'abcd1234',
+            user: currentUsername,
+          }
+          await fetch('http://localhost:9090/api/v1/points', {
+            body: dataTosdr ? JSON.stringify(stripInternalProperties(dataTosdr)) : null,
+            headers,
+            method: descriptor.method,
+          })
+        } catch (err) {
+          console.log(err);
+        }
+      }
+      const deleteTosdr = result && result.deleted && descriptor.desc === 'Delete an annotation';
+      if (deleteTosdr) {
+        try {
+          const currentUsername = username(result.user) || 'moleary';
+          const dataTosdr = {
+            service_id: '1',
+            annotation_id: result.id,
+            h_api_key: 'abcd1234',
+            user: currentUsername,
+          }
+          const resultTosdr = await fetch('http://localhost:9090/api/v1/points', {
+            body: dataTosdr ? JSON.stringify(stripInternalProperties(dataTosdr)) : null,
+            headers,
+            method: descriptor.method,
+          })
+          console.log(resultTosdr);
+        } catch (err) {
+          console.log(err);
+        }
+      }
+      console.log(result);
       return result;
     } finally {
       onRequestFinished();

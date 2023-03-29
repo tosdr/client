@@ -7,6 +7,7 @@ import type { TagsService } from '../services/tags';
 import AutocompleteList from './AutocompleteList';
 import TagList from './TagList';
 import TagListItem from './TagListItem';
+import cases from '../services/tosdr-cases';
 
 // Global counter used to create a unique id for each instance of a TagEditor
 let tagEditorIdCounter = 0;
@@ -34,7 +35,8 @@ function TagEditor({
   tags: tagsService,
 }: TagEditorProps) {
   const inputEl = useRef<HTMLInputElement>();
-  const [suggestions, setSuggestions] = useState([] as string[]);
+  const [suggestions, setSuggestions] = useState(cases);
+  // const [suggestions, setSuggestions] = useState([] as string[]);
   const [activeItem, setActiveItem] = useState(-1); // -1 is unselected
   const [suggestionsListOpen, setSuggestionsListOpen] = useState(false);
   const [tagEditorId] = useState(() => {
@@ -77,17 +79,11 @@ function TagEditor({
    * reset the activeItem and open the AutocompleteList
    */
   const updateSuggestions = () => {
-    if (!hasPendingTag()) {
-      // If there is no input, just hide the suggestions
-      setSuggestionsListOpen(false);
-    } else {
-      // Call filter() with a query value to return all matching suggestions.
-      const suggestions = tagsService.filter(pendingTag());
-      // Remove any repeated suggestions that are already tags
-      // and set those to state.
-      setSuggestions(removeDuplicates(suggestions, tagList));
-      setSuggestionsListOpen(suggestions.length > 0);
-    }
+    const suggestions = tagsService.filter(pendingTag());
+    // Remove any repeated suggestions that are already tags
+    // and set those to state.
+    setSuggestions(removeDuplicates(suggestions, tagList));
+    setSuggestionsListOpen(suggestions.length > 0);
     setActiveItem(-1);
   };
 
@@ -124,9 +120,10 @@ function TagEditor({
    * Opens the AutocompleteList on focus if there is a value in the input
    */
   const handleFocus = () => {
-    if (hasPendingTag()) {
-      setSuggestionsListOpen(true);
+    if (!pendingTag().length) {
+      setSuggestions(cases);
     }
+    setSuggestionsListOpen(true);
   };
 
   /**
@@ -172,16 +169,11 @@ function TagEditor({
         e.preventDefault();
         break;
       case 'Enter':
-      case ',':
-        // Commit a tag
         if (activeItem === -1) {
-          // nothing selected, just add the typed text
-          addTag(pendingTag());
-        } else {
-          // Add the selected tag
-          addTag(suggestions[activeItem]);
+          e.preventDefault();
+          break;
         }
-        e.preventDefault();
+        addTag(suggestions[activeItem]);
         break;
       case 'Tab':
         // Commit a tag, or tab out of the field if it is empty (default browser
@@ -199,9 +191,6 @@ function TagEditor({
           // If there is exactly one suggested tag match, commit that tag
           // This emulates a "tab-complete" behavior
           addTag(suggestions[0]);
-        } else {
-          // Commit the tag as typed in the field
-          addTag(pendingTag());
         }
         // Retain focus
         e.preventDefault();
@@ -249,7 +238,7 @@ function TagEditor({
   // when its -1 (no item selected), and in this case set the activeDescendant to "".
   const activeDescendant =
     activeItem >= 0 ? `${tagEditorId}-AutocompleteList-item-${activeItem}` : '';
-
+ 
   return (
     <div className="space-y-4">
       <TagList>
@@ -257,37 +246,39 @@ function TagEditor({
           return <TagListItem key={tag} onRemoveTag={onRemoveTag} tag={tag} />;
         })}
       </TagList>
-      <div
-        id={tagEditorId}
-        data-testid="combobox-container"
-        ref={closeWrapperRef}
-      >
-        <Input
-          onInput={handleOnInput}
-          onKeyDown={handleKeyDown}
-          onFocus={handleFocus}
-          elementRef={inputEl}
-          placeholder="Add new tags"
-          type="text"
-          autoComplete="off"
-          aria-autocomplete="list"
-          aria-activedescendant={activeDescendant}
-          aria-controls={`${tagEditorId}-AutocompleteList`}
-          aria-expanded={suggestionsListOpen}
-          aria-label="Add tags"
-          dir="auto"
-          role="combobox"
-        />
-        <AutocompleteList
-          id={`${tagEditorId}-AutocompleteList`}
-          list={suggestions}
-          listFormatter={formatSuggestedItem}
-          open={suggestionsListOpen}
-          onSelectItem={handleSelect}
-          itemPrefixId={`${tagEditorId}-AutocompleteList-item-`}
-          activeItem={activeItem}
-        />
-      </div>
+      {!tagList.length && (
+          <div
+            id={tagEditorId}
+            data-testid="combobox-container"
+            ref={closeWrapperRef}
+          >
+            <Input
+              onInput={handleOnInput}
+              onKeyDown={handleKeyDown}
+              onFocus={handleFocus}
+              elementRef={inputEl}
+              placeholder="Add case"
+              type="text"
+              autoComplete="off"
+              aria-autocomplete="list"
+              aria-activedescendant={activeDescendant}
+              aria-controls={`${tagEditorId}-AutocompleteList`}
+              aria-expanded={suggestionsListOpen}
+              aria-label="Add tags"
+              dir="auto"
+              role="combobox"
+            />
+            <AutocompleteList
+              id={`${tagEditorId}-AutocompleteList`}
+              list={suggestions}
+              listFormatter={formatSuggestedItem}
+              open={suggestionsListOpen}
+              onSelectItem={handleSelect}
+              itemPrefixId={`${tagEditorId}-AutocompleteList-item-`}
+              activeItem={activeItem}
+            />
+          </div>
+      )} 
     </div>
   );
 }

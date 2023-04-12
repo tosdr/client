@@ -1,4 +1,5 @@
 import { TinyEmitter } from 'tiny-emitter';
+import { fetchJSON } from '../util/fetch';
 
 import type { SidebarSettings } from '../../types/config';
 import { serviceConfig } from '../config/service-config';
@@ -121,6 +122,7 @@ export class AuthService extends TinyEmitter {
     }
 
     const links = await this._apiRoutes.links();
+
     this._client = new OAuthClient({
       clientId: this._settings.oauthClientId,
       authorizationEndpoint: links['oauth.authorize'],
@@ -231,7 +233,8 @@ export class AuthService extends TinyEmitter {
     if (!this._tokenInfoPromise) {
       // No access token is set: determine how to get one. This will depend on
       // which type of login is being used
-      const grantToken = this._getGrantToken();
+      const grantToken = this._getGrantToken();      
+      
       if (grantToken !== undefined) {
         // The user is logged in through a publisher/embedder's site and
         // a grant token has been included in service configuration
@@ -299,11 +302,12 @@ export class AuthService extends TinyEmitter {
     // This should already have happened by the time this function is called
     // however, so it will just be returning a cached value.
     const client = await this._oauthClient();
-    const authCode = await client.authorize(this._window);
-
+    const authCode = await client.postAuth(this._window);
+    // const authCode = await client.authorize(this._window);    
+    
     // Save the auth code. It will be exchanged for an access token when the
     // next API request is made.
-    this._authCode = authCode;
+    this._authCode = authCode;    
     this._tokenInfoPromise = null;
   }
 

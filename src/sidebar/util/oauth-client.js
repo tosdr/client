@@ -121,6 +121,27 @@ export class OAuthClient {
     }
   }
 
+  async postAuth($window) {
+    const state = generateHexString(16);
+    const authURL = new URL(this.authorizationEndpoint);
+    authURL.searchParams.set('client_id', this.clientId);
+    authURL.searchParams.set('origin', $window.location.origin);
+    authURL.searchParams.set('response_mode', 'web_message');
+    authURL.searchParams.set('response_type', 'code');
+    authURL.searchParams.set('state', state);
+    /** @type {Record<string, string>} */
+    const headers = {
+      'Content-Type': 'application/json',
+      'Hypothesis-Client-Version': '__VERSION__',
+    };
+    const result = await fetchJSON(authURL.toString(), {
+      body: null,
+      headers,
+      method: 'POST',
+    });
+    return result?.code;
+  }
+
   /**
    * Prompt the user for permission to access their data.
    *
@@ -180,8 +201,6 @@ export class OAuthClient {
     const left = $window.screen.width / 2 - width / 2;
     const top = $window.screen.height / 2 - height / 2;
 
-    // Generate settings for `window.open` in the required comma-separated
-    // key=value format.
     const authWindowSettings = `left=${left},top=${top},width=${width},height=${height}`;
     const authWindow = $window.open(
       authURL.toString(),
@@ -193,7 +212,9 @@ export class OAuthClient {
       throw new Error('Failed to open login window');
     }
 
-    return authResponse.then(rsp => rsp.code);
+    return authResponse.then(rsp => {
+      return rsp.code
+    });
   }
 
   /**
@@ -214,11 +235,14 @@ export class OAuthClient {
     const headers = {
       'Content-Type': 'application/x-www-form-urlencoded',
     };
-    return fetchJSON(url, {
+
+    const response = fetchJSON(url, {
       method: 'POST',
       headers,
       body: params.toString(),
     });
+
+    return response;
   }
 
   /**

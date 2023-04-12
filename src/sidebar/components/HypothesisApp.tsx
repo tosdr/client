@@ -1,5 +1,5 @@
 import classnames from 'classnames';
-import { useEffect, useMemo } from 'preact/hooks';
+import { useEffect, useMemo, useCallback } from 'preact/hooks';
 
 import { confirm } from '../../shared/prompts';
 import type { SidebarSettings } from '../../types/config';
@@ -47,6 +47,7 @@ function HypothesisApp({
   const profile = store.profile();
   const route = store.route();
   const isModalRoute = route === 'notebook' || route === 'profile';
+  const isLoggedIn = store.isLoggedIn();
 
   const backgroundStyle = useMemo(
     () => applyTheme(['appBackgroundColor'], settings),
@@ -56,11 +57,29 @@ function HypothesisApp({
 
   const isSidebar = route === 'sidebar';
 
+  const directLogin = useCallback(async () => {
+    try {
+      if (!isLoggedIn) {
+        await auth.login();
+  
+        store.closeSidebarPanel('loginPrompt');
+        store.clearGroups();
+        session.reload();
+      }
+    } catch (err) {
+      toastMessenger.error(err.message);
+    }
+  }, [auth, session, store, toastMessenger, isLoggedIn])
+
   useEffect(() => {
     if (shouldAutoDisplayTutorial(isSidebar, profile, settings)) {
       store.openSidebarPanel('help');
     }
-  }, [isSidebar, profile, settings, store]);
+
+    if (!isLoggedIn) {
+      directLogin()
+    }
+  }, [isSidebar, profile, settings, store, isLoggedIn, directLogin]);
 
   const login = async () => {
     if (serviceConfig(settings)) {

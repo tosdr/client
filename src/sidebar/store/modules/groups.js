@@ -241,6 +241,11 @@ const getMyGroups = createSelector(
   (groups, loggedIn) => {
     // If logged out, the Public group still has isMember set to true so only
     // return groups with membership in logged in state.
+    console.log('in get my groups - groups store module');
+    console.log('logged in?');
+    console.log(loggedIn);
+    console.log('groups');
+    console.log(groups);
     if (loggedIn) {
       return groups.filter(g => g.isMember);
     }

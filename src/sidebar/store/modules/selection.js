@@ -12,7 +12,7 @@ import { createStoreModule, makeAction } from '../create-store';
 
 /**
  * @typedef {Record<string, boolean>} BooleanMap
- * @typedef {'Location'|'Newest'|'Oldest'} SortKey
+ * @typedef {'Newest'|'Oldest'} SortKey
  */
 
 /**
@@ -21,9 +21,9 @@ import { createStoreModule, makeAction } from '../create-store';
  * @type {Record<TabName, SortKey>}
  */
 const TAB_SORTKEY_DEFAULT = {
-  annotation: 'Location',
+  annotation: 'Oldest',
   note: 'Oldest',
-  orphan: 'Location',
+  orphan: 'Oldest',
 };
 
 /** @param {SidebarSettings} settings */
@@ -426,10 +426,10 @@ const sortKeys = createSelector(
   selectedTab => {
     /** @type {SortKey[]} */
     const sortKeysForTab = ['Newest', 'Oldest'];
-    if (selectedTab !== 'note') {
-      // Location is inapplicable to Notes tab
-      sortKeysForTab.push('Location');
-    }
+    // if (selectedTab !== 'note') {
+    //   // Location is inapplicable to Notes tab
+    //   sortKeysForTab.push('Location');
+    // }
     return sortKeysForTab;
   }
 );

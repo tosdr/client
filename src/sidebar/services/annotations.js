@@ -60,8 +60,11 @@ export class AnnotationsService {
    */
   _initialize(annotationData, now = new Date()) {
     const defaultPrivacy = this._store.getDefault('annotationPrivacy');
-    const groupid = this._store.focusedGroupId();
     const profile = this._store.profile();
+    let groupid = this._store.focusedGroupId();
+    if (!groupid) {
+      groupid = profile?.groups[0]?.id;
+    }
 
     if (!groupid) {
       throw new Error('Cannot create annotation without a group');

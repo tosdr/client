@@ -102,7 +102,8 @@ function TopBar({
         )}
         data-testid="top-bar-content"
       >
-        {isSidebar ? <GroupList /> : <StreamSearchInput />}
+        {/* {isSidebar ? <GroupList /> : <StreamSearchInput />} */}
+        {isSidebar ? "ToS;DR" : <StreamSearchInput />}
         <div className="grow flex items-center justify-end">
           {isSidebar && (
             <>
@@ -122,7 +123,7 @@ function TopBar({
                 onSearch={store.setFilterQuery}
               />
               <SortMenu />
-              {showSharePageButton && (
+              {/* {showSharePageButton && (
                 <IconButton
                   icon={ShareIcon}
                   expanded={isAnnotationsPanelOpen}
@@ -130,7 +131,7 @@ function TopBar({
                   size="xs"
                   title="Share annotations on this page"
                 />
-              )}
+              )} */}
             </>
           )}
           <IconButton
@@ -140,7 +141,7 @@ function TopBar({
             size="xs"
             title="Help"
           />
-          {isLoggedIn ? (
+          {/* {isLoggedIn ? (
             <UserMenu onLogout={onLogout} />
           ) : (
             <div
@@ -168,7 +169,7 @@ function TopBar({
                 </>
               )}
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </div>

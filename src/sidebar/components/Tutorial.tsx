@@ -60,7 +60,7 @@ function Tutorial({ settings }: TutorialProps) {
         ), select text and then select the{' '}
         <LabeledIcon icon={HighlightIcon} commandName="Highlight" /> button.
       </li>
-      {canCreatePrivateGroups && (
+      {/* {canCreatePrivateGroups && (
         <li>
           To annotate in a private group, select the group from the groups
           dropdown. Don&apos;t see your group? Ask the group creator to send a{' '}
@@ -73,7 +73,7 @@ function Tutorial({ settings }: TutorialProps) {
           </Link>
           .
         </li>
-      )}
+      )} */}
       <li>
         To reply to an annotation, select the{' '}
         <LabeledIcon icon={ReplyIcon} commandName="Reply" /> button.

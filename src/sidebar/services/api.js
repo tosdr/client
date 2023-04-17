@@ -159,18 +159,21 @@ function createAPICall(
           apiURL.searchParams.append(key, item.toString());
         }
       }
-
+      const annotationRequest = descriptor.desc === 'Create an annotation' || descriptor.desc === 'Update an annotation';
+      if (annotationRequest) {
+        // debugger;
+      }
+      
       // nb. Don't "simplify" the lines below to `return fetchJSON(...)` as this
       // would cause `onRequestFinished` to be called before the API response
       // is received.
-      debugger;
       const result = await fetchJSON(apiURL.toString(), {
         body: data ? JSON.stringify(stripInternalProperties(data)) : null,
         headers,
         method: descriptor.method,
       });
       
-      const requestTosdr = result && descriptor.desc === 'Create an annotation' || descriptor.desc === 'Update an annotation';
+      const requestTosdr = result && annotationRequest;
       if (requestTosdr) {
         try {
           const currentUsername = username(result.user);

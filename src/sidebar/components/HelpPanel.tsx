@@ -167,13 +167,13 @@ function HelpPanel({ session }: HelpPanelProps) {
             <VersionInfo versionData={versionData} />
           )}
         </div>
-        <div className="flex items-center">
+        {/* <div className="flex items-center">
           <HelpPanelTab
             linkText="Help topics"
             url="https://web.hypothes.is/help/"
           />
           <HelpPanelTab linkText="New support ticket" url={supportTicketURL} />
-        </div>
+        </div> */}
       </div>
     </SidebarPanel>
   );

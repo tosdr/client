@@ -134,6 +134,8 @@ export class OAuthClient {
       'Content-Type': 'application/json',
       'Hypothesis-Client-Version': '__VERSION__',
     };
+    // # {'Location': 'http://localhost:5000/app.html?code=o3w6Y5hA1BOkNEmU2tRIzukpFhixei&state=1dc8b3364cdd92c5'}
+
     const result = await fetchJSON(authURL.toString(), {
       body: null,
       headers,
@@ -262,7 +264,6 @@ export class OAuthClient {
     } catch (err) {
       throw new TokenError('Failed to fetch access token', err);
     }
-
     return {
       accessToken: response.access_token,
 

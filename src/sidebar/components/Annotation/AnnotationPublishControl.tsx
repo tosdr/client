@@ -62,6 +62,11 @@ function AnnotationPublishControl({
     settings
   );
 
+  console.log('inside annotation publish control');
+  console.log('group');
+  console.log(group);
+  
+  
   const menuLabel = (
     <div
       className="w-9 h-9 flex items-center justify-center text-color-text-inverted"

@@ -47,11 +47,6 @@ function AnnotationEditor({
   const [pendingTag, setPendingTag] = useState<string | null>(null);
 
   const store = useSidebarStore();
-  console.log('IN ANNOTATION EDITOR');
-  console.log('annotation');
-  console.log(annotation);
-  console.log('group');
-  console.log(annotation.group);
   
   const group = store.getGroup(annotation.group);
 
@@ -201,7 +196,7 @@ function AnnotationEditor({
           onSetPrivate={onSetPrivate}
         />
       )}
-      {shouldShowLicense && <AnnotationLicense />}
+      {/* {shouldShowLicense && <AnnotationLicense />} */}
     </div>
   );
 }

@@ -61,15 +61,12 @@ function HypothesisApp({
     try {
       if (!isLoggedIn) {
         await auth.login();
-  
-        store.closeSidebarPanel('loginPrompt');
-        store.clearGroups();
         session.reload();
       }
     } catch (err) {
       toastMessenger.error(err.message);
     }
-  }, [auth, session, store, toastMessenger, isLoggedIn])
+  }, [auth, session, toastMessenger, isLoggedIn])
 
   useEffect(() => {
     if (shouldAutoDisplayTutorial(isSidebar, profile, settings)) {

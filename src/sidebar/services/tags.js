@@ -24,6 +24,8 @@ export class TagsService {
    * @param {import('./local-storage').LocalStorageService} localStorage -
    *   Storage used to persist the tags
    */
+
+  // ADD TOSDR CASES HERE
   constructor(localStorage) {
     this._storage = localStorage;
   }
@@ -31,15 +33,17 @@ export class TagsService {
   /**
    * Return a list of tag suggestions matching `query`.
    *
+   * @param {string[]|null} cases
    * @param {string} query
    * @param {number|null} limit - Optional limit of the results.
    * @return {string[]} List of matching tags
    */
-  filter(query, limit = null) {
-    /** @type {string[]} */
+  filter(cases = null, query, limit = null) {
+    /** @type {string[]|null} */
     // const savedTags = this._storage.getObject(TAGS_LIST_KEY) || [];
-    const savedTags = cases;
+    const savedTags = cases || [];
     let resultCount = 0;
+
     // Match any tag where the query is a prefix of the tag or a word within the tag.
     return savedTags.filter(tag => {
       if (limit !== null && resultCount >= limit) {

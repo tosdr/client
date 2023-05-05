@@ -177,7 +177,7 @@ export class AnnotationsService {
    * @param {SavedAnnotation} annotation
    */
   async delete(annotation) {
-    await this._api.annotation.delete({ id: annotation.id });
+    await this._api.annotation.delete({ id: annotation.id }, this._store.profile().userid);
     this._activity.reportActivity('delete', annotation);
     this._store.removeAnnotations([annotation]);
   }

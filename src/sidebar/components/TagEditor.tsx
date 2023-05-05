@@ -1,16 +1,31 @@
 import { useElementShouldClose } from '@hypothesis/frontend-shared';
 import { Input } from '@hypothesis/frontend-shared/lib/next';
-import { useRef, useState } from 'preact/hooks';
+import { useEffect, useCallback, useRef, useState } from 'preact/hooks';
 
 import { withServices } from '../service-context';
 import type { TagsService } from '../services/tags';
+import type { APIService } from '../services/api';
 import AutocompleteList from './AutocompleteList';
 import TagList from './TagList';
 import TagListItem from './TagListItem';
 import cases from '../services/tosdr-cases';
+import { useSidebarStore } from '../store';
+import { username } from '../helpers/account-id';
 
 // Global counter used to create a unique id for each instance of a TagEditor
 let tagEditorIdCounter = 0;
+
+/**
+ * Lookup cookie for tosdr auth
+ *
+ * @param {string} name - name of cookie
+ */
+const getCookie = (name) => {
+  return document.cookie.split('; ').reduce((r, v) => {
+    const parts = v.split('=')
+    return parts[0] === name ? decodeURIComponent(parts[1]) : r
+  }, '')
+}
 
 export type TagEditorProps = {
   onAddTag: (tag: string) => boolean;
@@ -20,6 +35,7 @@ export type TagEditorProps = {
 
   // injected
   tags: TagsService;
+  api: APIService;
 };
 /**
  * Component to edit annotation's tags.
@@ -33,9 +49,11 @@ function TagEditor({
   onTagInput,
   tagList,
   tags: tagsService,
+  api,
 }: TagEditorProps) {
   const inputEl = useRef<HTMLInputElement>();
-  const [suggestions, setSuggestions] = useState(cases);
+  const [suggestionsFullList, setSuggestionsFullList] = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
   // const [suggestions, setSuggestions] = useState([] as string[]);
   const [activeItem, setActiveItem] = useState(-1); // -1 is unselected
   const [suggestionsListOpen, setSuggestionsListOpen] = useState(false);
@@ -43,6 +61,21 @@ function TagEditor({
     ++tagEditorIdCounter;
     return `TagEditor-${tagEditorIdCounter}`;
   });
+
+  const fetchCases = useCallback(async () => {
+    const params = {};
+    api.tosdr.cases(params).then(resp => {
+      const list = resp.map(r => r.title);
+      setSuggestions(list)
+      setSuggestionsFullList(list)
+    }).catch(err => {
+      throw new Error(`Error! Check ToS;DR logs: ${err}`);
+    })
+  }, [api, setSuggestions])
+
+  useEffect(() => {
+    fetchCases();
+  }, [fetchCases]);
 
   // Set up callback to monitor outside click events to close the AutocompleteList
   const closeWrapperRef = useRef<HTMLDivElement>(null);
@@ -79,11 +112,11 @@ function TagEditor({
    * reset the activeItem and open the AutocompleteList
    */
   const updateSuggestions = () => {
-    const suggestions = tagsService.filter(pendingTag());
+    const suggestionsNew = tagsService.filter(suggestionsFullList, pendingTag());
     // Remove any repeated suggestions that are already tags
     // and set those to state.
-    setSuggestions(removeDuplicates(suggestions, tagList));
-    setSuggestionsListOpen(suggestions.length > 0);
+    setSuggestions(removeDuplicates(suggestionsNew, tagList));
+    setSuggestionsListOpen(suggestionsNew.length > 0);
     setActiveItem(-1);
   };
 
@@ -120,9 +153,9 @@ function TagEditor({
    * Opens the AutocompleteList on focus if there is a value in the input
    */
   const handleFocus = () => {
-    if (!pendingTag().length) {
-      setSuggestions(cases);
-    }
+    // if (!pendingTag().length) {
+    //   setSuggestions(cases);
+    // }
     setSuggestionsListOpen(true);
   };
 
@@ -283,4 +316,4 @@ function TagEditor({
   );
 }
 
-export default withServices(TagEditor, ['tags']);
+export default withServices(TagEditor, ['tags', 'api']);

@@ -27,6 +27,18 @@ function stripInternalProperties(obj) {
 }
 
 /**
+ * Lookup cookie for tosdr auth
+ *
+ * @param {string} name - name of cookie
+ */
+const getCookie = (name) => {
+  return document.cookie.split('; ').reduce((r, v) => {
+    const parts = v.split('=')
+    return parts[0] === name ? decodeURIComponent(parts[1]) : r
+  }, '')
+}
+
+/**
  * @template {object} Body
  * @typedef APIResponse
  * @prop {Body} data -
@@ -62,6 +74,9 @@ function stripInternalProperties(obj) {
  *   Function which acquires a valid access token for making an API request.
  * @prop {() => string|null} getClientId -
  *   Function that returns a per-session client ID to include with the request
+ *   or `null`.
+ * @prop {() => string|null} getCurrentUsername -
+ *   Function that returns a per-session username to include with the request
  *   or `null`.
  * @prop {() => void} onRequestStarted - Callback invoked when the API request starts.
  * @prop {() => void} onRequestFinished - Callback invoked when the API request finishes.
@@ -104,6 +119,65 @@ function findRouteMetadata(routeMap, route) {
 /**
  * Creates a function that will make an API call to a named route.
  *
+ * @param {APIMethodCallbacks} callbacks
+ * @return {APICall<Record<string, any>, Record<string, any>|void, unknown>} - Function that makes
+ *   an API call. The returned `APICall` has generic parameter, body and return types.
+ *   This can be cast to an `APICall` with more specific types.
+ */
+function createTosdrApiCall({
+  getAccessToken,
+  getClientId,
+  getCurrentUsername,
+  onRequestStarted,
+  onRequestFinished
+}) {
+  return async () => {
+    onRequestStarted();
+    try {
+      const token = await Promise.all([getAccessToken()]);
+      
+      /** @type {Record<string, string>} */
+      const headers = {
+        // 'Content-Type': 'application/json',
+        'Hypothesis-Client-Version': '__VERSION__',
+      };
+
+      if (token) {
+        headers.Authorization = 'Bearer ' + token;
+      }
+
+      const clientId = getClientId();
+      if (clientId) {
+        headers['X-Client-Id'] = clientId;
+      }
+
+      let currentUsername = getCurrentUsername();
+      currentUsername = username(currentUsername);
+      const hKey = getCookie('h_key');
+      headers['H-Key'] = hKey;
+      headers.User = currentUsername
+
+      try {
+        let response = await fetch('http://localhost:9090/api/v1/cases', {
+          body: null,
+          headers,
+          method: 'GET',
+        })
+        response = await response.json();
+        return response;
+      } catch (err) {
+        throw new Error(`Error! Check ToS;DR logs: ${err}`);
+      }
+
+    } finally {
+      onRequestFinished();
+    }
+  }
+}
+
+/**
+ * Creates a function that will make an API call to a named route.
+ *
  * @param {Promise<RouteMap>} links - API route data from API index endpoint (`/api/`)
  * @param {string} route - The dotted path of the named API route (eg. `annotation.create`)
  * @param {APIMethodCallbacks} callbacks
@@ -114,7 +188,7 @@ function findRouteMetadata(routeMap, route) {
 function createAPICall(
   links,
   route,
-  { getAccessToken, getClientId, onRequestStarted, onRequestFinished }
+  { getAccessToken, getClientId, onRequestStarted, onRequestFinished, getCurrentUsername }
 ) {
   return async (params, data) => {
     onRequestStarted();
@@ -159,10 +233,7 @@ function createAPICall(
           apiURL.searchParams.append(key, item.toString());
         }
       }
-      const annotationRequest = descriptor.desc === 'Create an annotation' || descriptor.desc === 'Update an annotation';
-      if (annotationRequest) {
-        // debugger;
-      }
+      const annotationRequest = descriptor.desc === 'Create an annotation' || descriptor.desc === 'Update an annotation' || descriptor.desc === 'Delete an annotation';
       
       // nb. Don't "simplify" the lines below to `return fetchJSON(...)` as this
       // would cause `onRequestFinished` to be called before the API response
@@ -172,17 +243,23 @@ function createAPICall(
         headers,
         method: descriptor.method,
       });
-      
+
+      let currentUsername = getCurrentUsername();
+      currentUsername = username(currentUsername);
+      const hKey = getCookie('h_key');
+
       const requestTosdr = result && annotationRequest;
       if (requestTosdr) {
+        const documentId = data?.documentId;
+        const serviceId = data?.serviceId;
         try {
-          const currentUsername = username(result.user);
           const dataTosdr = {
-            service_id: '1',
+            service_id: serviceId,
             annotation_id: result.id,
             case_title: result.tags[0],
-            h_api_key: 'abcd1234',
             user: currentUsername,
+            h_key: hKey,
+            document_id: documentId
           }
           await fetch('http://localhost:9090/api/v1/points', {
             body: dataTosdr ? JSON.stringify(stripInternalProperties(dataTosdr)) : null,
@@ -190,30 +267,30 @@ function createAPICall(
             method: descriptor.method,
           })
         } catch (err) {
-          console.log(err);
+          throw new Error(`Error! Check ToS;DR logs: ${err.message}`);
         }
       }
-      const deleteTosdr = result && result.deleted && descriptor.desc === 'Delete an annotation';
+      const deleteTosdr = result && result.deleted && annotationRequest;
       if (deleteTosdr) {
+        const documentId = data?.documentId;
+        const serviceId = data?.serviceId;
         try {
-          const currentUsername = username(result.user) || 'moleary';
           const dataTosdr = {
-            service_id: '1',
+            service_id: serviceId,
             annotation_id: result.id,
-            h_api_key: 'abcd1234',
             user: currentUsername,
+            h_key: hKey,
+            document_id: documentId
           }
-          const resultTosdr = await fetch('http://localhost:9090/api/v1/points', {
+          await fetch('http://localhost:9090/api/v1/points', {
             body: dataTosdr ? JSON.stringify(stripInternalProperties(dataTosdr)) : null,
             headers,
             method: descriptor.method,
           })
-          console.log(resultTosdr);
         } catch (err) {
-          console.log(err);
+          throw new Error(`Error! Check ToS;DR logs: ${err.message}`);
         }
       }
-      console.log(result);
       return result;
     } finally {
       onRequestFinished();
@@ -259,6 +336,17 @@ export class APIService {
     this._clientId = null;
 
     const getClientId = () => this._clientId;
+    this._store = store;
+    const getCurrentUsername = () => this._store.profile().userid;
+
+    const tosdrApiCall = () => 
+      createTosdrApiCall({
+        getAccessToken: () => auth.getAccessToken(),
+        getClientId,
+        getCurrentUsername,
+        onRequestStarted: store.apiRequestStarted,
+        onRequestFinished: store.apiRequestFinished,
+      });
 
     /** @param {string} route */
     const apiCall = route =>
@@ -267,6 +355,7 @@ export class APIService {
         getClientId,
         onRequestStarted: store.apiRequestStarted,
         onRequestFinished: store.apiRequestFinished,
+        getCurrentUsername
       });
 
     // Define available API calls.
@@ -282,6 +371,12 @@ export class APIService {
      */
 
     /** @typedef {{ id: string }} IDParam */
+
+    this.tosdr = {
+      cases: (
+        tosdrApiCall()
+      )
+    };
 
     this.search = /** @type {APICall<{}, void, AnnotationSearchResult>} */ (
       apiCall('search')

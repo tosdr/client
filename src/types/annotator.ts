@@ -68,6 +68,10 @@ export type SegmentInfo = {
 export type AnnotationData = ClientAnnotationData &
   Pick<Annotation, 'target' | 'uri'> & {
     document?: DocumentMetadata;
+  } & {
+    documentId?: string;
+  } & {
+    serviceId?: string;
   };
 
 /**

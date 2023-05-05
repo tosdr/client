@@ -67,11 +67,8 @@ export class Socket extends TinyEmitter {
           return;
         }
         const err = new Error(
-          // console.log(event);
           `WebSocket closed abnormally, code: ${event.code}`
         );
-        console.log('in websocket');
-        console.log(event);
         console.warn(err);
         this.emit('disconnect');
       };

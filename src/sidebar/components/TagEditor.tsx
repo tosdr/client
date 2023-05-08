@@ -8,9 +8,6 @@ import type { APIService } from '../services/api';
 import AutocompleteList from './AutocompleteList';
 import TagList from './TagList';
 import TagListItem from './TagListItem';
-import cases from '../services/tosdr-cases';
-import { useSidebarStore } from '../store';
-import { username } from '../helpers/account-id';
 
 // Global counter used to create a unique id for each instance of a TagEditor
 let tagEditorIdCounter = 0;

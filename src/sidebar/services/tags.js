@@ -1,5 +1,4 @@
 import escapeStringRegexp from 'escape-string-regexp';
-import cases from './tosdr-cases.js';
 
 /**
  * @typedef Tag
@@ -25,7 +24,6 @@ export class TagsService {
    *   Storage used to persist the tags
    */
 
-  // ADD TOSDR CASES HERE
   constructor(localStorage) {
     this._storage = localStorage;
   }

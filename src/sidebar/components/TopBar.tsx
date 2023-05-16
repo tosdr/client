@@ -114,7 +114,7 @@ function TopBar({
                   size="xs"
                   variant="primary"
                   title={`Show ${pendingUpdateCount} new/updated ${
-                    pendingUpdateCount === 1 ? 'annotation' : 'annotations'
+                    pendingUpdateCount === 1 ? 'point' : 'points'
                   }`}
                 />
               )}

@@ -45,7 +45,7 @@ function Tutorial({ settings }: TutorialProps) {
   return (
     <ol className="list-decimal pl-10 space-y-2">
       <li>
-        To create an annotation, select text and then select the{' '}
+        To create a point, select text and then select the{' '}
         <LabeledIcon icon={AnnotateIcon} commandName="Annotate" /> button.
       </li>
       <li>

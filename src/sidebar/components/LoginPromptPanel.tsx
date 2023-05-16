@@ -30,7 +30,7 @@ export default function LoginPromptPanel({
       title="Login needed"
       panelName="loginPrompt"
     >
-      <p>Please log in to create annotations or highlights.</p>
+      <p>Please log in to create points.</p>
       <CardActions>
         <Button title="Sign up" onClick={onSignUp}>
           Sign up

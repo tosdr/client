@@ -130,10 +130,10 @@ function SelectionTabs({
           count={annotationCount}
           isWaitingToAnchor={isWaitingToAnchorAnnotations}
           isSelected={selectedTab === 'annotation'}
-          label="Annotations"
+          label="Points"
           onSelect={() => selectTab('annotation')}
         >
-          Annotations
+          Points
         </Tab>
         {/* <Tab
           count={noteCount}

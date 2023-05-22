@@ -42,7 +42,7 @@ pages:
     - apt update
     - apt install -y make 
     - make build
-    - mkdir public/hypothesis/1.0.0
+    - mkdir -p public/hypothesis/1.0.0
     - mv build public/hypothesis/1.0.0
     - mv gitlab_pages.redirect public/_redirects
   artifacts:

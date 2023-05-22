@@ -32,7 +32,7 @@ const sidebarAppUrl = process.env.SIDEBAR_APP_URL
 // nb. Replace `isProd` with `false` here to test a production build of the client
 // served locally.
 const assetRoot = isProd
-  ? `https://cdn.hypothes.is/hypothesis/${version}/`
+  ? `${process.env.ASSET_HOST}/${version}/`
   : `${localhost}:3001/hypothesis/${version}/`;
 
 export default {

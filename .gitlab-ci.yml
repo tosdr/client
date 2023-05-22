@@ -36,6 +36,8 @@ pages:
   stage: deploy
   environment: production
   image: node:buster
+  variables:
+    ASSET_HOST: "https://hypothesis-assets.tosdr.org/hypothesis"
   script:
     - apt update
     - apt install -y make 

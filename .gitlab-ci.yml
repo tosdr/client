@@ -5,8 +5,9 @@
 
 
 
+
 docker-nightly:
-  stage: publish
+  stage: deploy
   image:
     name: gcr.io/kaniko-project/executor:v1.9.0-debug
     entrypoint:
@@ -19,7 +20,7 @@ docker-nightly:
 
 
 docker-prod:
-  stage: publish
+  stage: deploy
   image:
     name: gcr.io/kaniko-project/executor:v1.9.0-debug
     entrypoint:

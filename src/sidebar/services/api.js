@@ -158,7 +158,7 @@ function createTosdrApiCall({
       headers.User = currentUsername
 
       try {
-        let response = await fetch('http://localhost:9090/api/v1/cases', {
+        let response = await fetch('/api/v1/cases', {
           body: null,
           headers,
           method: 'GET',

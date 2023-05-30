@@ -106,12 +106,12 @@ function AnnotationHeader({
   return (
     <header>
       <div className="flex gap-x-1 items-baseline flex-wrap-reverse">
-        {isPrivate(annotation.permissions) && !isEditing && (
+        {/* {isPrivate(annotation.permissions) && !isEditing && (
           <LockIcon
             className="w-[10px] h-[10px]"
             title="This annotation is visible only to you"
           />
-        )}
+        )} */}
         <AnnotationUser authorLink={authorLink} displayName={authorName} />
         {replyCount > 0 && isCollapsedReply && (
           <LinkButton
@@ -141,12 +141,12 @@ function AnnotationHeader({
           className="flex gap-x-1 items-baseline flex-wrap-reverse"
           data-testid="extended-header-info"
         >
-          {group && (
+          {/* {group && (
             <AnnotationShareInfo
               group={group}
               isPrivate={isPrivate(annotation.permissions)}
             />
-          )}
+          )} */}
           {!isEditing && isHighlight(annotation) && (
             <HighlightIcon
               title="This is a highlight. Click 'edit' to add a note or tag."

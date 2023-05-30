@@ -30,15 +30,15 @@ export default function TagListItem({
             href={href}
             lang=""
             target="_blank"
-            aria-label={`Tag: ${tag}`}
-            title={`View annotations with tag: ${tag}`}
+            aria-label={`Case: ${tag}`}
+            title={`View points with case: ${tag}`}
           >
             {tag}
           </Link>
         ) : (
           <span
             className="text-color-text-light cursor-default"
-            aria-label={`Tag: ${tag}`}
+            aria-label={`Case: ${tag}`}
             lang=""
           >
             {tag}

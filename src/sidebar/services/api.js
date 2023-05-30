@@ -119,18 +119,16 @@ function findRouteMetadata(routeMap, route) {
 /**
  * Creates a function that will make an API call to a named route.
  *
+ * @param {string} tosdrBaseURL
  * @param {APIMethodCallbacks} callbacks
  * @return {APICall<Record<string, any>, Record<string, any>|void, unknown>} - Function that makes
  *   an API call. The returned `APICall` has generic parameter, body and return types.
  *   This can be cast to an `APICall` with more specific types.
  */
-function createTosdrApiCall({
-  getAccessToken,
-  getClientId,
-  getCurrentUsername,
-  onRequestStarted,
-  onRequestFinished
-}) {
+function createTosdrApiCall(
+  tosdrBaseURL,
+  { getAccessToken, getClientId, getCurrentUsername, onRequestStarted, onRequestFinished }
+) {
   return async () => {
     onRequestStarted();
     try {
@@ -158,7 +156,7 @@ function createTosdrApiCall({
       headers.User = currentUsername
 
       try {
-        let response = await fetch('/api/v1/cases', {
+        let response = await fetch(`${tosdrBaseURL}/api/v1/cases`, {
           body: null,
           headers,
           method: 'GET',
@@ -180,6 +178,7 @@ function createTosdrApiCall({
  *
  * @param {Promise<RouteMap>} links - API route data from API index endpoint (`/api/`)
  * @param {string} route - The dotted path of the named API route (eg. `annotation.create`)
+ * @param {string} tosdrBaseURL
  * @param {APIMethodCallbacks} callbacks
  * @return {APICall<Record<string, any>, Record<string, any>|void, unknown>} - Function that makes
  *   an API call. The returned `APICall` has generic parameter, body and return types.
@@ -188,6 +187,7 @@ function createTosdrApiCall({
 function createAPICall(
   links,
   route,
+  tosdrBaseURL,
   { getAccessToken, getClientId, onRequestStarted, onRequestFinished, getCurrentUsername }
 ) {
   return async (params, data) => {
@@ -261,7 +261,7 @@ function createAPICall(
             h_key: hKey,
             document_id: documentId
           }
-          await fetch('http://localhost:9090/api/v1/points', {
+          await fetch(`${tosdrBaseURL}/api/v1/points`, {
             body: dataTosdr ? JSON.stringify(stripInternalProperties(dataTosdr)) : null,
             headers,
             method: descriptor.method,
@@ -282,7 +282,7 @@ function createAPICall(
             h_key: hKey,
             document_id: documentId
           }
-          await fetch('http://localhost:9090/api/v1/points', {
+          await fetch(`${tosdrBaseURL}/api/v1/points`, {
             body: dataTosdr ? JSON.stringify(stripInternalProperties(dataTosdr)) : null,
             headers,
             method: descriptor.method,
@@ -338,19 +338,20 @@ export class APIService {
     const getClientId = () => this._clientId;
     this._store = store;
     const getCurrentUsername = () => this._store.profile().userid;
+    const tosdrBaseURL = apiRoutes._tosdr;
 
     const tosdrApiCall = () => 
-      createTosdrApiCall({
+      createTosdrApiCall(tosdrBaseURL, {
         getAccessToken: () => auth.getAccessToken(),
         getClientId,
         getCurrentUsername,
         onRequestStarted: store.apiRequestStarted,
-        onRequestFinished: store.apiRequestFinished,
+        onRequestFinished: store.apiRequestFinished
       });
 
     /** @param {string} route */
     const apiCall = route =>
-      createAPICall(links, route, {
+      createAPICall(links, route, tosdrBaseURL, {
         getAccessToken: () => auth.getAccessToken(),
         getClientId,
         onRequestStarted: store.apiRequestStarted,

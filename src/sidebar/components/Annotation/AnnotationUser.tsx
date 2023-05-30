@@ -12,13 +12,13 @@ type AnnotationUserProps = {
 function AnnotationUser({ authorLink, displayName }: AnnotationUserProps) {
   const user = <h3 className="text-color-text font-bold">{displayName}</h3>;
 
-  if (authorLink) {
-    return (
-      <LinkBase href={authorLink} target="_blank">
-        {user}
-      </LinkBase>
-    );
-  }
+  // if (authorLink) {
+  //   return (
+  //     <LinkBase href={authorLink} target="_blank">
+  //       {user}
+  //     </LinkBase>
+  //   );
+  // }
 
   return <div>{user}</div>;
 }

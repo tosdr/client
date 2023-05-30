@@ -87,7 +87,7 @@ export default function AnnotationTimestamps({
           ({editedString}){' '}
         </span>
       )}
-      {annotationURL ? (
+      {/* {annotationURL ? (
         <LinkBase
           // The light-text hover color is not a standard color for a Link, so
           // LinkBase is used here
@@ -98,7 +98,7 @@ export default function AnnotationTimestamps({
         >
           {created.relative}
         </LinkBase>
-      ) : (
+      ) : ( */}
         <span
           className="color-text-color-light"
           data-testid="timestamp-created"
@@ -106,7 +106,7 @@ export default function AnnotationTimestamps({
         >
           {created.relative}
         </span>
-      )}
+      {/* )} */}
     </div>
   );
 }

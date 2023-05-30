@@ -127,13 +127,13 @@ function AnnotationActionBar({
       {shareLink && (
         <AnnotationShareControl annotation={annotation} shareUri={shareLink} />
       )}
-      {showFlagAction && !annotation.flagged && (
+      {/* {showFlagAction && !annotation.flagged && (
         <IconButton
           icon={FlagIcon}
           title="Report this annotation to moderators"
           onClick={onFlag}
         />
-      )}
+      )} */}
       {showFlagAction && annotation.flagged && (
         <IconButton
           pressed={true}

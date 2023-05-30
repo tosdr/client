@@ -121,7 +121,7 @@ function AnnotationShareControl({
   // then group sharing settings are irrelevant—only the author may view the
   // annotation.
   const annotationSharingInfo = annotationIsPrivate ? (
-    <span>Only you may view this annotation.</span>
+    <span>Only you may view this point.</span>
   ) : (
     groupSharingInfo
   );
@@ -156,7 +156,7 @@ function AnnotationShareControl({
             width="custom"
           >
             <h2 className="text-brand text-md font-medium">
-              Share this annotation
+              Share this point
             </h2>
             <div
               className={classnames(
@@ -167,7 +167,7 @@ function AnnotationShareControl({
             >
               <InputGroup>
                 <Input
-                  aria-label="Use this URL to share this annotation"
+                  aria-label="Use this URL to share this point"
                   type="text"
                   value={shareUri}
                   readOnly
@@ -186,9 +186,9 @@ function AnnotationShareControl({
                 <>{annotationSharingInfo}</>
               ) : (
                 <>
-                  This annotation cannot be shared in its original context
+                  This point cannot be shared in its original context
                   because it was made on a document that is not available on the
-                  web. This link shares the annotation by itself.
+                  web. This link shares the point by itself.
                 </>
               )}
             </div>

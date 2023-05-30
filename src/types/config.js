@@ -51,6 +51,7 @@
  * @prop {string} oauthClientId
  * @prop {string[]} rpcAllowedOrigins
  * @prop {SentryConfig} [sentry]
+ * @prop {string} tosdr
  */
 
 /**

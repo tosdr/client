@@ -4,7 +4,7 @@ import {
   ExpandIcon,
 } from '@hypothesis/frontend-shared/lib/next';
 import classnames from 'classnames';
-import { useMemo, useState } from 'preact/hooks';
+import { useMemo, useState, useEffect, useCallback } from 'preact/hooks';
 
 import type { Annotation } from '../../../types/api';
 import type { SidebarSettings } from '../../../types/config';
@@ -17,6 +17,7 @@ import Excerpt from '../Excerpt';
 import MarkdownView from '../MarkdownView';
 import TagList from '../TagList';
 import TagListItem from '../TagListItem';
+import type { APIService } from '../../services/api';
 
 type ToggleExcerptButtonProps = {
   classes?: string;
@@ -57,12 +58,13 @@ export type AnnotationBodyProps = {
 
   // injected
   settings: SidebarSettings;
+  api: APIService;
 };
 
 /**
  * Display the rendered content of an annotation.
  */
-function AnnotationBody({ annotation, settings }: AnnotationBodyProps) {
+function AnnotationBody({ annotation, settings, api }: AnnotationBodyProps) {
   // Should the text content of `Excerpt` be rendered in a collapsed state,
   // assuming it is collapsible (exceeds allotted collapsed space)?
   const [collapsed, setCollapsed] = useState(true);
@@ -88,8 +90,32 @@ function AnnotationBody({ annotation, settings }: AnnotationBodyProps) {
     [annotation, defaultAuthority]
   );
 
+  const [cases, setCases] = useState([])
+  const fetchCases = useCallback(async () => {
+    const params = {};
+    api.tosdr.cases(params).then(resp => {
+      setCases(resp)
+    }).catch(err => {
+      throw new Error(`Error! Check ToS;DR logs: ${err}`);
+    })
+  }, [api, setCases])
+
+  useEffect(() => {
+    fetchCases();
+  }, [fetchCases]);
+
   const createTagSearchURL = (tag: string) => {
     return store.getLink('search.tag', { tag });
+  };
+
+  const createCaseURL = (caseTitle: string) => {
+    const base = store.getLink('tosdr')
+    if (!cases.length) {
+      return base + '/cases';
+    }
+    const caseObj = cases.filter((c) => c.title === caseTitle)[0];
+    const caseId = caseObj?.id.toString();
+    return base + '/cases/' +  caseId;
   };
 
   return (
@@ -115,7 +141,7 @@ function AnnotationBody({ annotation, settings }: AnnotationBodyProps) {
       {(collapsible || showTagList) && (
         <div className="flex flex-row gap-x-2">
           <div className="grow">
-            {showTagList && (
+            {showTagList && cases.length && (
               <TagList>
                 {tags.map(tag => {
                   return (
@@ -123,7 +149,7 @@ function AnnotationBody({ annotation, settings }: AnnotationBodyProps) {
                       key={tag}
                       tag={tag}
                       href={
-                        shouldLinkTags ? createTagSearchURL(tag) : undefined
+                        shouldLinkTags ? createCaseURL(tag) : undefined
                       }
                     />
                   );
@@ -149,4 +175,4 @@ function AnnotationBody({ annotation, settings }: AnnotationBodyProps) {
   );
 }
 
-export default withServices(AnnotationBody, ['settings']);
+export default withServices(AnnotationBody, ['settings', 'api']);

@@ -40,6 +40,8 @@ export class APIRoutesService {
 
     /** @type {Promise<LinksResponse>|null} */
     this._linkCache = null;
+
+    this._tosdr = settings.tosdr;
   }
 
   /**

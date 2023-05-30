@@ -109,13 +109,14 @@ function AnnotationBody({ annotation, settings, api }: AnnotationBodyProps) {
   };
 
   const createCaseURL = (caseTitle: string) => {
-    const base = store.getLink('tosdr')
+    let base = store.getLink('tosdr')
+    base = base ? base + '/cases' : '/cases'
     if (!cases.length) {
-      return base + '/cases';
+      return base;
     }
     const caseObj = cases.filter((c) => c.title === caseTitle)[0];
     const caseId = caseObj?.id.toString();
-    return base + '/cases/' +  caseId;
+    return base + '/' +  caseId;
   };
 
   return (

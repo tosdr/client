@@ -155,8 +155,10 @@ function createTosdrApiCall(
       headers['H-Key'] = hKey;
       headers.User = currentUsername
 
+      const tosdrEndpoint = tosdrBaseURL ? `${tosdrBaseURL}/api/v1/cases` : `/api/v1/cases`;
+
       try {
-        let response = await fetch(`${tosdrBaseURL}/api/v1/cases`, {
+        let response = await fetch(tosdrEndpoint, {
           body: null,
           headers,
           method: 'GET',
@@ -248,6 +250,8 @@ function createAPICall(
       currentUsername = username(currentUsername);
       const hKey = getCookie('h_key');
 
+      const tosdrEndpoint = tosdrBaseURL ? `${tosdrBaseURL}/api/v1/points` : `/api/v1/points`;
+
       const requestTosdr = result && annotationRequest;
       if (requestTosdr) {
         const documentId = data?.documentId;
@@ -261,7 +265,7 @@ function createAPICall(
             h_key: hKey,
             document_id: documentId
           }
-          await fetch(`${tosdrBaseURL}/api/v1/points`, {
+          await fetch(tosdrEndpoint, {
             body: dataTosdr ? JSON.stringify(stripInternalProperties(dataTosdr)) : null,
             headers,
             method: descriptor.method,
@@ -282,7 +286,7 @@ function createAPICall(
             h_key: hKey,
             document_id: documentId
           }
-          await fetch(`${tosdrBaseURL}/api/v1/points`, {
+          await fetch(tosdrEndpoint, {
             body: dataTosdr ? JSON.stringify(stripInternalProperties(dataTosdr)) : null,
             headers,
             method: descriptor.method,

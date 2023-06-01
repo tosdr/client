@@ -79,14 +79,14 @@ function AnnotationActionBar({
     const annType = annotationRole(annotation);
     if (
       await confirm({
-        title: `Delete ${annType.toLowerCase()}?`,
-        message: `Are you sure you want to delete this ${annType.toLowerCase()}?`,
-        confirmAction: 'Delete',
+        title: `Remove ${annType.toLowerCase()}?`,
+        message: `Are you sure you want to remove this ${annType.toLowerCase()}? The point will still exist in the database, but it will be marked as 'declined', so it will no longer show up in this document as an annotation.`,
+        confirmAction: 'Remove',
       })
     ) {
       try {
         await annotationsService.delete(annotation);
-        toastMessenger.success(`${annType} deleted`, { visuallyHidden: true });
+        toastMessenger.success(`${annType} removed`, { visuallyHidden: true });
       } catch (err) {
         toastMessenger.error(err.message);
       }

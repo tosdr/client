@@ -235,7 +235,9 @@ function createAPICall(
           apiURL.searchParams.append(key, item.toString());
         }
       }
-      const annotationRequest = descriptor.desc === 'Create an annotation' || descriptor.desc === 'Update an annotation' || descriptor.desc === 'Delete an annotation';
+      const annotationRequest = descriptor.desc === 'Create an annotation' || descriptor.desc === 'Update an annotation';
+      
+      const annotationDeleteRequest = descriptor.desc === 'Delete an annotation';
       
       // nb. Don't "simplify" the lines below to `return fetchJSON(...)` as this
       // would cause `onRequestFinished` to be called before the API response
@@ -274,7 +276,7 @@ function createAPICall(
           throw new Error(`Error! Check ToS;DR logs: ${err.message}`);
         }
       }
-      const deleteTosdr = result && result.deleted && annotationRequest;
+      const deleteTosdr = result && result.deleted && annotationDeleteRequest;
       if (deleteTosdr) {
         const documentId = data?.documentId;
         const serviceId = data?.serviceId;
@@ -284,7 +286,7 @@ function createAPICall(
             annotation_id: result.id,
             user: currentUsername,
             h_key: hKey,
-            document_id: documentId
+            document_id: documentId,
           }
           await fetch(tosdrEndpoint, {
             body: dataTosdr ? JSON.stringify(stripInternalProperties(dataTosdr)) : null,

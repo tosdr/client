@@ -3,34 +3,6 @@
 # This specific template is located at:
 # https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Pages/HTML.gitlab-ci.yml
 
-
-
-
-docker-nightly:
-  stage: deploy
-  image:
-    name: gcr.io/kaniko-project/executor:v1.9.0-debug
-    entrypoint:
-    - ''
-  script:
-  - /kaniko/executor --context "${CI_PROJECT_DIR}" --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
-    --destination "${CI_REGISTRY_IMAGE}:nightly" --build-arg GIT_TAG=nightly
-  rules:
-  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-
-
-docker-prod:
-  stage: deploy
-  image:
-    name: gcr.io/kaniko-project/executor:v1.9.0-debug
-    entrypoint:
-    - ''
-  script:
-  - /kaniko/executor --context "${CI_PROJECT_DIR}" --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
-    --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}" --build-arg GIT_TAG=${CI_COMMIT_TAG}
-  rules:
-  - if: $CI_COMMIT_TAG
-
 # Full project: https://gitlab.com/pages/plain-html
 prod-s3:
   stage: deploy

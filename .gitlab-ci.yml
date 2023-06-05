@@ -38,9 +38,9 @@ pages:
   image: node:buster
   variables:
     ASSET_HOST: "https://hypothesis-assets.tosdr.org/hypothesis"
-    NOTEBOOK_APP_URL: "https://edit.staging.tosdr.org/hypothesis/notebook"
-    PROFILE_APP_URL: "https://edit.staging.tosdr.org/hypothesis/user-profile"
-    SIDEBAR_APP_URL: "https://edit.staging.tosdr.org/hypothesis/app.html"
+    NOTEBOOK_APP_URL: "https://edit.tosdr.org/hypothesis/notebook"
+    PROFILE_APP_URL: "https://edit.tosdr.org/hypothesis/user-profile"
+    SIDEBAR_APP_URL: "https://edit.tosdr.org/hypothesis/app.html"
   script:
     - apt update
     - apt install -y make 

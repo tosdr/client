@@ -52,23 +52,14 @@ function contentTypeFromFilename(path) {
 
 class S3Uploader {
   constructor(bucket) {
-    this.s3 = new AWS.S3();
+    this.s3 = new AWS.S3({
+      endpoint: "https://s3.jrbit.de"
+     });
     this.bucket = bucket;
-    this.region = null;
+    this.region = "eu-west-2";
   }
 
   async upload(destPath, srcFile, { cacheControl }) {
-    if (!this.region) {
-      // Find out where the S3 bucket is.
-      const regionResult = await this.s3
-        .getBucketLocation({
-          Bucket: this.bucket,
-        })
-        .promise();
-      this.region = regionResult.LocationConstraint;
-      this.s3 = new AWS.S3({ region: this.region });
-    }
-
     const fileContent = fs.readFileSync(srcFile);
     const params = {
       ACL: 'public-read',

@@ -33,7 +33,7 @@ staging-s3:
     SIDEBAR_APP_URL: "https://edit.staging.tosdr.org/hypothesis/app.html"
     NODE_ENV: "production"
   script:
-    - npm install --global cross-env
+    - yarn install
     - make build
     - ./scripts/deploy-to-s3.js --bucket tosdr-hypothesis-staging
   rules:

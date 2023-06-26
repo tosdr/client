@@ -3,53 +3,39 @@
 # This specific template is located at:
 # https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Pages/HTML.gitlab-ci.yml
 
-
-
-
-docker-nightly:
+# Full project: https://gitlab.com/pages/plain-html
+prod-s3:
   stage: deploy
-  image:
-    name: gcr.io/kaniko-project/executor:v1.9.0-debug
-    entrypoint:
-    - ''
+  environment: production
+  image: node:bullseye
+  variables:
+    ASSET_HOST: "https://tosdr-hypothesis-prod.s3.jrbit.de/hypothesis"
+    NOTEBOOK_APP_URL: "https://edit.tosdr.org/hypothesis/notebook"
+    PROFILE_APP_URL: "https://edit.tosdr.org/hypothesis/user-profile"
+    SIDEBAR_APP_URL: "https://edit.tosdr.org/hypothesis/app.html"
+    NODE_ENV: "production"
   script:
-  - /kaniko/executor --context "${CI_PROJECT_DIR}" --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
-    --destination "${CI_REGISTRY_IMAGE}:nightly" --build-arg GIT_TAG=nightly
-  rules:
-  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-
-
-docker-prod:
-  stage: deploy
-  image:
-    name: gcr.io/kaniko-project/executor:v1.9.0-debug
-    entrypoint:
-    - ''
-  script:
-  - /kaniko/executor --context "${CI_PROJECT_DIR}" --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
-    --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}" --build-arg GIT_TAG=${CI_COMMIT_TAG}
+    - yarn install
+    - make build
+    - ./scripts/deploy-to-s3.js --bucket tosdr-hypothesis-prod
   rules:
   - if: $CI_COMMIT_TAG
 
+
 # Full project: https://gitlab.com/pages/plain-html
-pages:
+staging-s3:
   stage: deploy
-  environment: production
-  image: node:buster
+  environment: staging
+  image: node:bullseye
   variables:
-    ASSET_HOST: "https://hypothesis-assets.tosdr.org/hypothesis"
+    ASSET_HOST: "https://tosdr-hypothesis-staging.s3.jrbit.de/hypothesis"
     NOTEBOOK_APP_URL: "https://edit.staging.tosdr.org/hypothesis/notebook"
     PROFILE_APP_URL: "https://edit.staging.tosdr.org/hypothesis/user-profile"
     SIDEBAR_APP_URL: "https://edit.staging.tosdr.org/hypothesis/app.html"
+    NODE_ENV: "production"
   script:
-    - apt update
-    - apt install -y make 
+    - yarn install
     - make build
-    - mkdir -p public/hypothesis/1.0.0
-    - mv build public/hypothesis/1.0.0
-    - mv gitlab_pages.redirect public/_redirects
-  artifacts:
-    paths:
-      - public
+    - ./scripts/deploy-to-s3.js --bucket tosdr-hypothesis-staging
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

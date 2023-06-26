@@ -174,12 +174,12 @@ function AnnotationEditor({
       className="space-y-4"
       onKeyDown={onKeyDown}
     >
-      <MarkdownEditor
+      {/* <MarkdownEditor
         textStyle={textStyle}
         label="Annotation body"
         text={text}
         onEditText={onEditText}
-      />
+      /> */}
       <TagEditor
         onAddTag={onAddTag}
         onRemoveTag={onRemoveTag}

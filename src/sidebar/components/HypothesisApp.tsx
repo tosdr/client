@@ -176,7 +176,6 @@ function HypothesisApp({
       <div className="container">
         <ToastMessages />
         <HelpPanel />
-        <ShareAnnotationsPanel />
 
         {route && (
           <main>

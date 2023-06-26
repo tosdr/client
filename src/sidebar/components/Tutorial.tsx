@@ -74,10 +74,10 @@ function Tutorial({ settings }: TutorialProps) {
           .
         </li>
       )} */}
-      <li>
+      {/* <li>
         To reply to an annotation, select the{' '}
         <LabeledIcon icon={ReplyIcon} commandName="Reply" /> button.
-      </li>
+      </li> */}
     </ol>
   );
 }

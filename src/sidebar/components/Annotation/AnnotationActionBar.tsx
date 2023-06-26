@@ -123,10 +123,10 @@ function AnnotationActionBar({
       {showDeleteAction && (
         <IconButton icon={TrashIcon} title="Delete" onClick={onDelete} />
       )}
-      <IconButton icon={ReplyIcon} title="Reply" onClick={onReplyClick} />
+      {/* <IconButton icon={ReplyIcon} title="Reply" onClick={onReplyClick} />
       {shareLink && (
         <AnnotationShareControl annotation={annotation} shareUri={shareLink} />
-      )}
+      )} */}
       {/* {showFlagAction && !annotation.flagged && (
         <IconButton
           icon={FlagIcon}

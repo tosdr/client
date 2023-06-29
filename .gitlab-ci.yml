@@ -7,7 +7,7 @@
 prod-s3:
   stage: deploy
   environment: production
-  image: node:bullseye
+  image: node:lts-bullseye
   variables:
     ASSET_HOST: "https://tosdr-hypothesis-prod.s3.jrbit.de/hypothesis"
     NOTEBOOK_APP_URL: "https://edit.tosdr.org/hypothesis/notebook"
@@ -15,8 +15,6 @@ prod-s3:
     SIDEBAR_APP_URL: "https://edit.tosdr.org/hypothesis/app.html"
     NODE_ENV: "production"
   script:
-    - yarn install
-    - npm i -g cross-env
     - make build
     - ./scripts/deploy-to-s3.js --bucket tosdr-hypothesis-prod
   rules:
@@ -27,7 +25,7 @@ prod-s3:
 staging-s3:
   stage: deploy
   environment: staging
-  image: node:bullseye
+  image: node:lts-bullseye
   variables:
     ASSET_HOST: "https://tosdr-hypothesis-staging.s3.jrbit.de/hypothesis"
     NOTEBOOK_APP_URL: "https://edit.staging.tosdr.org/hypothesis/notebook"
@@ -35,8 +33,6 @@ staging-s3:
     SIDEBAR_APP_URL: "https://edit.staging.tosdr.org/hypothesis/app.html"
     NODE_ENV: "production"
   script:
-    - yarn install
-    - npm i -g cross-env
     - make build
     - ./scripts/deploy-to-s3.js --bucket tosdr-hypothesis-staging
   rules:

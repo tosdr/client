@@ -34,6 +34,7 @@ staging-s3:
     NODE_ENV: "production"
   script:
     - yarn global add gulp cross-env
+    - yarn add gulp
     - make build
     - ./scripts/deploy-to-s3.js --bucket tosdr-hypothesis-staging
   rules:

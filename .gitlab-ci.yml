@@ -34,7 +34,7 @@ staging-s3:
     NODE_ENV: "production"
   script:
     - npm i -g gulp cross-env
-    - npm install
+    - npm install --force
     - npm run build
     - ./scripts/deploy-to-s3.js --bucket tosdr-hypothesis-staging
   rules:

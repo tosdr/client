@@ -31,7 +31,6 @@ staging-s3:
     NOTEBOOK_APP_URL: "https://edit.staging.tosdr.org/hypothesis/notebook"
     PROFILE_APP_URL: "https://edit.staging.tosdr.org/hypothesis/user-profile"
     SIDEBAR_APP_URL: "https://edit.staging.tosdr.org/hypothesis/app.html"
-    NODE_ENV: "production"
   script:
     - make build && ./scripts/deploy-to-s3.js --bucket tosdr-hypothesis-staging
   rules:

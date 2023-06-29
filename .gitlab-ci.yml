@@ -33,9 +33,6 @@ staging-s3:
     SIDEBAR_APP_URL: "https://edit.staging.tosdr.org/hypothesis/app.html"
     NODE_ENV: "production"
   script:
-    - npm i -g gulp cross-env
-    - npm install --force
-    - npm run build
-    - ./scripts/deploy-to-s3.js --bucket tosdr-hypothesis-staging
+    - make build && ./scripts/deploy-to-s3.js --bucket tosdr-hypothesis-staging
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

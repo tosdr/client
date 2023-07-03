@@ -14,8 +14,7 @@ prod-s3:
     PROFILE_APP_URL: "https://edit.tosdr.org/hypothesis/user-profile"
     SIDEBAR_APP_URL: "https://edit.tosdr.org/hypothesis/app.html"
   script:
-    - make build
-    - ./scripts/deploy-to-s3.js --bucket tosdr-hypothesis-prod
+    - make build && ./scripts/deploy-to-s3.js --bucket tosdr-hypothesis-prod
   rules:
   - if: $CI_COMMIT_TAG
 

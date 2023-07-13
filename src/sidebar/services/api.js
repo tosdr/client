@@ -125,6 +125,67 @@ function findRouteMetadata(routeMap, route) {
  *   an API call. The returned `APICall` has generic parameter, body and return types.
  *   This can be cast to an `APICall` with more specific types.
  */
+function createFetchPhoenixPoint(
+  tosdrBaseURL,
+  { getAccessToken, getClientId, getCurrentUsername, onRequestStarted, onRequestFinished }
+) {
+  return async (params) => {
+    onRequestStarted();
+    try {
+      const token = await Promise.all([getAccessToken()]);
+
+      /** @type {Record<string, string>} */
+      const headers = {
+        // 'Content-Type': 'application/json',
+        'Hypothesis-Client-Version': '__VERSION__',
+      };
+
+      if (token) {
+        headers.Authorization = 'Bearer ' + token;
+      }
+
+      const clientId = getClientId();
+      if (clientId) {
+        headers['X-Client-Id'] = clientId;
+      }
+
+      let currentUsername = getCurrentUsername();
+      currentUsername = username(currentUsername);
+      const hKey = getCookie('h_key');
+      headers['H-Key'] = hKey;
+      headers.User = currentUsername
+      const { id } = params;
+      headers['Annotation-Id'] = id;
+
+      const tosdrEndpoint = tosdrBaseURL ? `${tosdrBaseURL}/api/v1/points` : `/api/v1/points`;
+
+      try {
+        let response = await fetch(tosdrEndpoint, {
+          body: null,
+          headers,
+          method: 'GET',
+        })
+        response = await response.json();
+        return response;
+      } catch (err) {
+        throw new Error(`Error! Check ToS;DR logs: ${err}`);
+      }
+    } finally {
+      onRequestFinished()
+    }
+  }
+}
+
+
+/**
+ * Creates a function that will make an API call to a named route.
+ *
+ * @param {string} tosdrBaseURL
+ * @param {APIMethodCallbacks} callbacks
+ * @return {APICall<Record<string, any>, Record<string, any>|void, unknown>} - Function that makes
+ *   an API call. The returned `APICall` has generic parameter, body and return types.
+ *   This can be cast to an `APICall` with more specific types.
+ */
 function createTosdrApiCall(
   tosdrBaseURL,
   { getAccessToken, getClientId, getCurrentUsername, onRequestStarted, onRequestFinished }
@@ -355,6 +416,15 @@ export class APIService {
         onRequestFinished: store.apiRequestFinished
       });
 
+    const fetchPhoenixPoint = () => 
+      createFetchPhoenixPoint(tosdrBaseURL, {
+        getAccessToken: () => auth.getAccessToken(),
+        getClientId,
+        getCurrentUsername,
+        onRequestStarted: store.apiRequestStarted,
+        onRequestFinished: store.apiRequestFinished
+      });
+
     /** @param {string} route */
     const apiCall = route =>
       createAPICall(links, route, tosdrBaseURL, {
@@ -382,6 +452,9 @@ export class APIService {
     this.tosdr = {
       cases: (
         tosdrApiCall()
+      ),
+      fetchPoint: /** @type {APICall<IDParam, void, Annotation>} */ (
+        fetchPhoenixPoint()
       )
     };
 

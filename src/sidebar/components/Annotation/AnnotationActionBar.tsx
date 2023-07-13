@@ -3,9 +3,13 @@ import {
   EditIcon,
   FlagIcon,
   FlagFilledIcon,
+  Link,
   ReplyIcon,
   TrashIcon,
+  ShareIcon,
 } from '@hypothesis/frontend-shared/lib/next';
+import { useMemo, useState, useEffect, useCallback } from 'preact/hooks';
+
 
 import { confirm } from '../../../shared/prompts';
 import type { SavedAnnotation } from '../../../types/api';
@@ -19,6 +23,7 @@ import {
 import { isPrivate, permits } from '../../helpers/permissions';
 import { withServices } from '../../service-context';
 import type { AnnotationsService } from '../../services/annotations';
+import type { APIService } from '../../services/api';
 import type { ToastMessengerService } from '../../services/toast-messenger';
 import { useSidebarStore } from '../../store';
 import AnnotationShareControl from './AnnotationShareControl';
@@ -39,6 +44,7 @@ export type AnnotationActionBarProps = {
   annotationsService: AnnotationsService;
   settings: SidebarSettings;
   toastMessenger: ToastMessengerService;
+  api: APIService;
 };
 
 /**
@@ -53,11 +59,11 @@ function AnnotationActionBar({
   onReply,
   settings,
   toastMessenger,
+  api,
 }: AnnotationActionBarProps) {
   const store = useSidebarStore();
   const userProfile = store.profile();
   const isLoggedIn = store.isLoggedIn();
-
   // Is the current user allowed to take the given `action` on this annotation?
   const userIsAuthorizedTo = (action: 'update' | 'delete') => {
     return permits(annotation.permissions, action, userProfile.userid);
@@ -72,8 +78,8 @@ function AnnotationActionBar({
     !!userProfile.userid &&
     userProfile.userid !== annotation.user;
 
-  const shareLink =
-    sharingEnabled(settings) && annotationSharingLink(annotation);
+  // const shareLink =
+  //   sharingEnabled(settings) && annotationSharingLink(annotation);
 
   const onDelete = async () => {
     const annType = annotationRole(annotation);
@@ -93,7 +99,24 @@ function AnnotationActionBar({
     }
   };
 
-  const onEdit = () => {
+  const [pointLinks, setPointLinks] = useState({})
+  const fetchPointLinks = useCallback(async () => {
+    api.tosdr.fetchPoint({ id: annotation.id }).then(resp => {
+      const point = resp?.id.toString()
+      let base = store.getLink('tosdr')
+      base = base ? base + '/points' : '/points'
+      pointLinks[annotation.id] = base + '/' + point
+      setPointLinks(pointLinks)
+    }).catch(err => {
+      throw new Error(`Error! Check ToS;DR logs: ${err}`);
+    })
+  }, [api, store, annotation, pointLinks, setPointLinks])
+
+  useEffect(() => {
+    fetchPointLinks();
+  }, [fetchPointLinks]);
+
+  const onEdit = () => {    
     store.createDraft(annotation, {
       tags: annotation.tags,
       text: annotation.text,
@@ -116,31 +139,49 @@ function AnnotationActionBar({
   };
 
   return (
-    <div className="flex text-[16px]" data-testid="annotation-action-bar">
-      {showEditAction && (
-        <IconButton icon={EditIcon} title="Edit" onClick={onEdit} />
-      )}
-      {showDeleteAction && (
-        <IconButton icon={TrashIcon} title="Delete" onClick={onDelete} />
-      )}
-      {/* <IconButton icon={ReplyIcon} title="Reply" onClick={onReplyClick} />
-      {shareLink && (
-        <AnnotationShareControl annotation={annotation} shareUri={shareLink} />
-      )} */}
-      {/* {showFlagAction && !annotation.flagged && (
-        <IconButton
-          icon={FlagIcon}
-          title="Report this annotation to moderators"
-          onClick={onFlag}
-        />
-      )} */}
-      {showFlagAction && annotation.flagged && (
-        <IconButton
-          pressed={true}
-          icon={FlagFilledIcon}
-          title="Annotation has been reported to the moderators"
-        />
-      )}
+    <div>
+      <div className="flex text-[16px]" data-testid="annotation-action-bar">
+        {showEditAction && (
+          <IconButton icon={EditIcon} title="Edit" onClick={onEdit} />
+        )}
+        {showDeleteAction && (
+          <IconButton icon={TrashIcon} title="Delete" onClick={onDelete} />
+        )}
+        {/* <IconButton icon={ReplyIcon} title="Reply" onClick={onReplyClick} />
+        {shareLink && (
+          <AnnotationShareControl annotation={annotation} shareUri={shareLink} />
+        )} */}
+        {/* {showFlagAction && !annotation.flagged && (
+          <IconButton
+            icon={FlagIcon}
+            title="Report this annotation to moderators"
+            onClick={onFlag}
+          />
+        )} */}
+        {/* {showFlagAction && annotation.flagged && (
+          <IconButton
+            pressed={true}
+            icon={FlagFilledIcon}
+            title="Annotation has been reported to the moderators"
+          />
+        )} */}
+      </div>
+      <div>
+        {pointLinks && (
+          <div>
+            <Link
+              color="text-light"
+              href={pointLinks[annotation.id]}
+              lang=""
+              target="_blank"
+              aria-label={`Point: ${annotation.id}`}
+              title={'View point in Phoenix'}
+              >
+                View point page
+            </Link>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -149,4 +190,5 @@ export default withServices(AnnotationActionBar, [
   'annotationsService',
   'settings',
   'toastMessenger',
+  'api'
 ]);
